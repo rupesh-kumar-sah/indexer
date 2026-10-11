@@ -30,4 +30,20 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   onModuleDestroy(): void {
     this.client.disconnect();
   }
+
+  /**
+   * Reports the current connectivity status of Redis via ping.
+   */
+  async checkHealth(): Promise<{ status: 'up' | 'down'; error?: string }> {
+    try {
+      await this.client.ping();
+      return { status: 'up' };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      return {
+        status: 'down',
+        error: message,
+      };
+    }
+  }
 }

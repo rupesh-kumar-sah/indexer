@@ -70,4 +70,27 @@ export class StellarService implements OnModuleInit {
     const { sequence } = await this.server.getLatestLedger();
     return sequence;
   }
+
+  /**
+   * Reports the current connectivity status of the configured Stellar RPC node.
+   */
+  async checkHealth(): Promise<{
+    status: 'up' | 'down';
+    latestLedger?: number;
+    error?: string;
+  }> {
+    try {
+      const health = await this.server.getHealth();
+      return {
+        status: health.status === 'healthy' ? 'up' : 'down',
+        latestLedger: health.latestLedger,
+      };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      return {
+        status: 'down',
+        error: message,
+      };
+    }
+  }
 }
