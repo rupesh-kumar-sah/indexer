@@ -25,4 +25,20 @@ export class PrismaService
   async onModuleDestroy(): Promise<void> {
     await this.$disconnect();
   }
+
+  /**
+   * Reports the current connectivity status of Postgres via a lightweight ping.
+   */
+  async checkHealth(): Promise<{ status: 'up' | 'down'; error?: string }> {
+    try {
+      await this.$queryRaw`SELECT 1`;
+      return { status: 'up' };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      return {
+        status: 'down',
+        error: message,
+      };
+    }
+  }
 }
